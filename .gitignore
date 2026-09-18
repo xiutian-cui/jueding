@@ -1,0 +1,34 @@
+# Byte-compiled / build artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Environments
+.venv/
+venv/
+
+# Secrets — never commit API keys (see AGENTS.md)
+.env
+.env.*
+!.env.example
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/
+
+# Agent instructions (kept local)
+AGENTS.md
+CLAUDE.md
+
+# Generated API docs
+site/

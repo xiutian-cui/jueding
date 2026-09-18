@@ -1,0 +1,41 @@
+name: Release
+
+# The tag is the trigger, so a release is `git tag 0.1.0 && git push origin 0.1.0`.
+# The tag is the version with no prefix, so it matches __version__ exactly.
+on:
+  push:
+    tags: ["[0-9]*"]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    permissions:
+      # Required for trusted publishing: the job proves its identity to PyPI over
+      # OIDC, so there is no API token to store or rotate.
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      # The version lives in the source file, so a tag can disagree with it. PyPI
+      # never lets a version be re-uploaded, so catch the mismatch before the build.
+      - name: Check that the tag matches the declared version
+        run: |
+          version=$(grep -oE '__version__ = "[^"]+"' src/jueding/__init__.py | cut -d'"' -f2)
+          if [ "$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match __version__ $version" >&2
+            exit 1
+          fi
+
+      - name: Build
+        run: uv build
+
+      - name: Publish
+        run: uv publish --trusted-publishing always
